@@ -59,9 +59,9 @@ cvd_score = (
 )
 
 # Classification thresholds
-if cvd_score < 25:
+if cvd_score < 10:
     risk_level = "LOW"
-elif 25 <= cvd_score < 75:
+elif 10 <= cvd_score < 20:
     risk_level = "INTERMEDIARY"
 else:
     risk_level = "HIGH"
@@ -88,9 +88,9 @@ if st.button("💡 Predict My Risk Level"):
             'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': "darkgray"},
             'bar': {'color': color_map[risk_level]},
             'steps': [
-                {'range': [0, 50], 'color': 'lightgreen'},
-                {'range': [50, 85], 'color': 'lightyellow'},
-                {'range': [85, 100], 'color': 'lightcoral'}
+                {'range': [0, 10], 'color': 'lightgreen'},
+                {'range': [10, 20], 'color': 'lightyellow'},
+                {'range': [20, 25], 'color': 'lightcoral'}
             ],
             'threshold': {
                 'line': {'color': "black", 'width': 4},
