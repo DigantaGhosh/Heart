@@ -1,5 +1,4 @@
 import streamlit as st
-import pandas as pd
 import plotly.graph_objects as go
 
 st.set_page_config(page_title="CVD Risk Predictor", layout="centered")
@@ -30,7 +29,7 @@ family_history = st.selectbox("Family History of CVD?", ["No", "Yes"])
 bmi = weight / (height ** 2)
 waist_height_ratio = waist / (height * 100)
 
-# Binary and indicator encoding
+# Binary encodings
 sex_binary = 1 if sex == "Male" else 0
 smoking_val = 1 if smoking == "Yes" else 0
 diabetes_val = 1 if diabetes == "Yes" else 0
@@ -38,14 +37,14 @@ family_val = 1 if family_history == "Yes" else 0
 physical_moderate = 1 if activity == "Moderate" else 0
 physical_high = 1 if activity == "High" else 0
 
-# CVD Risk Score Formula
+# CVD Risk Score Calculation
 cvd_score = (
     0.334 +
     (0.001 * age) +
     (0.005 * sex_binary) +
     (0.190 * bmi) +
     (0.281 * waist_height_ratio) +
-    (0.001 * height * 100) +  # Convert height in m to cm
+    (0.001 * height * 100) +  # Convert height from m to cm
     (0.048 * sbp) +
     (0.001 * dbp) +
     (0.011 * chol) +
@@ -67,7 +66,7 @@ elif 25 <= cvd_score < 75:
 else:
     risk_level = "HIGH"
 
-# Predict and show result
+# Show results on button click
 if st.button("💡 Predict My Risk Level"):
     st.markdown("### 🧮 Your Calculated CVD Risk Score:")
     st.info(f"**Score: {cvd_score:.2f}**")
@@ -75,28 +74,31 @@ if st.button("💡 Predict My Risk Level"):
     st.markdown("### 🧠 Your Predicted CVD Risk Level:")
     st.success(f"➡️ **{risk_level}**")
 
-    # Risk Meter Visualization
+    # Color and value mapping
     color_map = {"LOW": "green", "INTERMEDIARY": "orange", "HIGH": "red"}
-    value_map = {"LOW": 25, "INTERMEDIARY": 75, "HIGH": 100}
+    fixed_value_map = {"LOW": 25, "INTERMEDIARY": 75, "HIGH": 100}
+    display_value = fixed_value_map[risk_level]
 
+    # Gauge chart
     fig = go.Figure(go.Indicator(
-    mode="gauge+number",
-    value=cvd_score,  # use actual score
-    title={'text': "CVD Risk Score Meter", 'font': {'size': 20}},
-    gauge={
-           'axis': {'range': [0, 10], 'tickwidth': 1, 'tickcolor': "darkgray"},
-           'bar': {'color': color_map.get(risk_level, "gray")},
-           'steps': [
-               {'range': [0, 25], 'color': 'lightgreen'},
-               {'range': [25, 75], 'color': 'lightyellow'},
-               {'range': [75, 100], 'color': 'lightcoral'}
-           ],
-           'threshold': {
-               'line': {'color': "black", 'width': 4},
-               'thickness': 0.75,
-               'value': cvd_score
-           }
-       }
-))
+        mode="gauge+number",
+        value=display_value,
+        title={'text': "CVD Risk Level Meter", 'font': {'size': 20}},
+        gauge={
+            'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': "darkgray"},
+            'bar': {'color': color_map[risk_level]},
+            'steps': [
+                {'range': [0, 50], 'color': 'lightgreen'},
+                {'range': [50, 85], 'color': 'lightyellow'},
+                {'range': [85, 100], 'color': 'lightcoral'}
+            ],
+            'threshold': {
+                'line': {'color': "black", 'width': 4},
+                'thickness': 0.75,
+                'value': display_value
+            }
+        }
+    ))
 
-st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True)
+    st.caption(f"🔢 Raw score used for classification: {cvd_score:.2f}")
