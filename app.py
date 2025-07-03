@@ -97,7 +97,7 @@ if st.button("💡 Predict My Risk Level"):
             'value': cvd_score
         }
     }
-))
+)
 
         }
     ))
