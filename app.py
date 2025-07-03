@@ -80,22 +80,25 @@ if st.button("💡 Predict My Risk Level"):
     value_map = {"LOW": 25, "INTERMEDIARY": 50, "HIGH": 85}
 
     fig = go.Figure(go.Indicator(
-        mode="gauge+number",
-        value=value_map.get(risk_level, 50),
-        title={'text': "Risk Meter", 'font': {'size': 20}},
-        gauge={
-            'axis': {'range': [0, 100]},
-            'bar': {'color': color_map.get(risk_level, "gray")},
-            'steps': [
-                {'range': [0, 35], 'color': 'lightgreen'},
-                {'range': [35, 70], 'color': 'lightyellow'},
-                {'range': [70, 100], 'color': 'lightcoral'}
-            ],
-            'threshold': {
-                'line': {'color': "black", 'width': 4},
-                'thickness': 0.75,
-                'value': value_map.get(risk_level, 50)
-            }
+    mode="gauge+number",
+    value=cvd_score,  # use actual score
+    title={'text': "CVD Risk Score Meter", 'font': {'size': 20}},
+    gauge={
+        'axis': {'range': [0, 10], 'tickwidth': 1, 'tickcolor': "darkgray"},
+        'bar': {'color': color_map.get(risk_level, "gray")},
+        'steps': [
+            {'range': [0, 5], 'color': 'lightgreen'},
+            {'range': [5, 7], 'color': 'lightyellow'},
+            {'range': [7, 10], 'color': 'lightcoral'}
+        ],
+        'threshold': {
+            'line': {'color': "black", 'width': 4},
+            'thickness': 0.75,
+            'value': cvd_score
+        }
+    }
+))
+
         }
     ))
     st.plotly_chart(fig, use_container_width=True)
