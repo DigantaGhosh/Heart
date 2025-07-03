@@ -87,9 +87,9 @@ if st.button("💡 Predict My Risk Level"):
            'axis': {'range': [0, 10], 'tickwidth': 1, 'tickcolor': "darkgray"},
            'bar': {'color': color_map.get(risk_level, "gray")},
            'steps': [
-               {'range': [0, 5], 'color': 'lightgreen'},
-               {'range': [5, 7], 'color': 'lightyellow'},
-               {'range': [7, 10], 'color': 'lightcoral'}
+               {'range': [0, 25], 'color': 'lightgreen'},
+               {'range': [25, 75], 'color': 'lightyellow'},
+               {'range': [75, 100], 'color': 'lightcoral'}
            ],
            'threshold': {
                'line': {'color': "black", 'width': 4},
