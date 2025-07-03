@@ -85,7 +85,7 @@ if st.button("💡 Predict My Risk Level"):
         value=display_value,
         title={'text': "CVD Risk Level Meter", 'font': {'size': 20}},
         gauge={
-            'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': "darkgray"},
+            'axis': {'range': [0, 25], 'tickwidth': 1, 'tickcolor': "darkgray"},
             'bar': {'color': color_map[risk_level]},
             'steps': [
                 {'range': [0, 10], 'color': 'lightgreen'},
