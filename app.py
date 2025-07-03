@@ -1,14 +1,6 @@
-
 import streamlit as st
 import pandas as pd
-import numpy as np
-import joblib
 import plotly.graph_objects as go
-
-# Load model and encoders
-clf = joblib.load("cvd_classifier_model.pkl")
-label_encoder = joblib.load("risk_level_encoder.pkl")
-feature_order = joblib.load("feature_order.pkl")
 
 st.set_page_config(page_title="CVD Risk Predictor", layout="centered")
 st.title("🫀 CVD Risk Level Predictor")
@@ -26,7 +18,7 @@ dbp = st.number_input("Diastolic BP", 60, 130, 80)
 chol = st.number_input("Total Cholesterol (mg/dL)", 100, 400, 190)
 hdl = st.number_input("HDL (mg/dL)", 20, 100, 45)
 ldl = st.number_input("Estimated LDL (mg/dL)", 50, 250, 130)
-sugar = st.number_input("Fasting Blood Sugar", 70, 200, 90)
+sugar = st.number_input("Fasting Blood Sugar (mg/dL)", 70, 200, 90)
 waist = st.number_input("Waist Circumference (cm)", 50, 150, 90)
 
 smoking = st.selectbox("Do you smoke?", ["No", "Yes"])
@@ -38,47 +30,62 @@ family_history = st.selectbox("Family History of CVD?", ["No", "Yes"])
 bmi = weight / (height ** 2)
 waist_height_ratio = waist / (height * 100)
 
-# Prepare input
-input_dict = {
-    "Age": age,
-    "Sex": 1 if sex == "Male" else 0,
-    "Weight (kg)": weight,
-    "Height (m)": height,
-    "Systolic BP": sbp,
-    "Diastolic BP": dbp,
-    "Total Cholesterol (mg/dL)": chol,
-    "HDL (mg/dL)": hdl,
-    "Fasting Blood Sugar (mg/dL)": sugar,
-    "Smoking Status": 1 if smoking == "Yes" else 0,
-    "Diabetes Status": 1 if diabetes == "Yes" else 0,
-    "Physical Activity Level": {"Low": 0, "Moderate": 1, "High": 2}[activity],
-    "Family History of CVD": 1 if family_history == "Yes" else 0,
-    "Abdominal Circumference (cm)": waist,
-    "Estimated LDL (mg/dL)": ldl,
-    "BMI": bmi,
-    "Waist-to-Height Ratio": waist_height_ratio
-}
+# Binary and indicator encoding
+sex_binary = 1 if sex == "Male" else 0
+smoking_val = 1 if smoking == "Yes" else 0
+diabetes_val = 1 if diabetes == "Yes" else 0
+family_val = 1 if family_history == "Yes" else 0
+physical_moderate = 1 if activity == "Moderate" else 0
+physical_high = 1 if activity == "High" else 0
 
-input_df = pd.DataFrame([input_dict])
-input_df = input_df.reindex(columns=feature_order)
+# CVD Risk Score Formula
+cvd_score = (
+    0.334 +
+    (0.001 * age) +
+    (0.005 * sex_binary) +
+    (0.190 * bmi) +
+    (0.281 * waist_height_ratio) +
+    (0.001 * height * 100) +  # Convert height in m to cm
+    (0.048 * sbp) +
+    (0.001 * dbp) +
+    (0.011 * chol) +
+    (0.009 * hdl) +
+    (0.008 * ldl) +
+    (0.000 * sugar) +
+    (-0.012 * smoking_val) +
+    (-0.012 * family_val) +
+    (1.946 * diabetes_val) +
+    (-0.014 * physical_moderate) +
+    (-0.012 * physical_high)
+)
 
-# Predict
+# Classification thresholds
+if cvd_score < 5:
+    risk_level = "LOW"
+elif 5 <= cvd_score < 7:
+    risk_level = "INTERMEDIARY"
+else:
+    risk_level = "HIGH"
+
+# Predict and show result
 if st.button("💡 Predict My Risk Level"):
-    pred = clf.predict(input_df)[0]
-    result = label_encoder.inverse_transform([pred])[0]
-    st.markdown("### 🧠 Your Predicted CVD Risk Level:")
-    st.success(f"➡️ **{result}**")
+    st.markdown("### 🧮 Your Calculated CVD Risk Score:")
+    st.info(f"**Score: {cvd_score:.2f}**")
 
-    # Risk meter
+    st.markdown("### 🧠 Your Predicted CVD Risk Level:")
+    st.success(f"➡️ **{risk_level}**")
+
+    # Risk Meter Visualization
     color_map = {"LOW": "green", "INTERMEDIARY": "orange", "HIGH": "red"}
     value_map = {"LOW": 25, "INTERMEDIARY": 50, "HIGH": 85}
+
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
-        value=value_map.get(result.upper(), 50),
+        value=value_map.get(risk_level, 50),
         title={'text': "Risk Meter", 'font': {'size': 20}},
         gauge={
             'axis': {'range': [0, 100]},
-            'bar': {'color': color_map.get(result.upper(), "gray")},
+            'bar': {'color': color_map.get(risk_level, "gray")},
             'steps': [
                 {'range': [0, 35], 'color': 'lightgreen'},
                 {'range': [35, 70], 'color': 'lightyellow'},
@@ -87,7 +94,7 @@ if st.button("💡 Predict My Risk Level"):
             'threshold': {
                 'line': {'color': "black", 'width': 4},
                 'thickness': 0.75,
-                'value': value_map.get(result.upper(), 50)
+                'value': value_map.get(risk_level, 50)
             }
         }
     ))
