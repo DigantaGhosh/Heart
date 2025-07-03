@@ -76,8 +76,8 @@ if st.button("💡 Predict My Risk Level"):
 
     # Color and value mapping
     color_map = {"LOW": "green", "INTERMEDIARY": "orange", "HIGH": "red"}
-    fixed_value_map = {"LOW": 25, "INTERMEDIARY": 75, "HIGH": 100}
-    display_value = fixed_value_map[risk_level]
+    #fixed_value_map = {"LOW": 25, "INTERMEDIARY": 75, "HIGH": 100}
+    display_value = cvd_score
 
     # Gauge chart
     fig = go.Figure(go.Indicator(
