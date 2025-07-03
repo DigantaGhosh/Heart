@@ -60,9 +60,9 @@ cvd_score = (
 )
 
 # Classification thresholds
-if cvd_score < 5:
+if cvd_score < 25:
     risk_level = "LOW"
-elif 5 <= cvd_score < 7:
+elif 25 <= cvd_score < 75:
     risk_level = "INTERMEDIARY"
 else:
     risk_level = "HIGH"
@@ -77,7 +77,7 @@ if st.button("💡 Predict My Risk Level"):
 
     # Risk Meter Visualization
     color_map = {"LOW": "green", "INTERMEDIARY": "orange", "HIGH": "red"}
-    value_map = {"LOW": 25, "INTERMEDIARY": 50, "HIGH": 85}
+    value_map = {"LOW": 25, "INTERMEDIARY": 75, "HIGH": 100}
 
     fig = go.Figure(go.Indicator(
     mode="gauge+number",
