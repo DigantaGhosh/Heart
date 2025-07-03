@@ -97,8 +97,6 @@ if st.button("💡 Predict My Risk Level"):
             'value': cvd_score
         }
     }
-)
-
-        }
+)}
     ))
     st.plotly_chart(fig, use_container_width=True)
